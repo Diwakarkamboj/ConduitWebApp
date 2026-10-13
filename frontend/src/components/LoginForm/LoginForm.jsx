@@ -8,11 +8,16 @@ function LoginForm({ onError }) {
   const [{ email, password }, setForm] = useState({ email: "", password: "" });
   const { setAuthState } = useAuth();
   const navigate = useNavigate();
+  // 1. Added state to track if the password should be visible
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    userLogin({ email, password })
+    // Convert email to lowercase for the login check
+    const normalizedEmail = email.toLowerCase();
+
+    userLogin({ email: normalizedEmail, password })
       .then(setAuthState)
       .then(() => navigate("/"))
       .catch(onError);
@@ -37,15 +42,32 @@ function LoginForm({ onError }) {
         autoFocus
       ></FormFieldset>
 
-      <FormFieldset
-        name="password"
-        type="password"
-        required
-        placeholder="Password"
-        value={password}
-        handler={inputHandler}
-        minLength="5"
-      ></FormFieldset>
+      {/* 2. Wrapped the password field in a relative container for the icon */}
+      <div style={{ position: "relative" }}>
+        <FormFieldset
+          name="password"
+          type={showPassword ? "text" : "password"} // 3. Toggles between text and password        required
+          required
+          placeholder="Password"
+          value={password}
+          handler={inputHandler}
+        ></FormFieldset>
+
+        {/* 4. The clickable eye icon */}
+        <span
+          onClick={() => setShowPassword(!showPassword)}
+          style={{
+            position: "absolute",
+            right: "15px",
+            top: "20px", // Adjust this value slightly if the icon is too high or low
+            cursor: "pointer",
+            userSelect: "none",
+            fontSize: "1.2rem"
+          }}
+        >
+          {showPassword ? "🙈" : "👁️"}
+        </span>
+      </div>
       <button className="btn btn-lg btn-primary pull-xs-right">Login</button>
     </form>
   );
